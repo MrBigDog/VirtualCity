@@ -1,7 +1,7 @@
 #include "City.h"
 
 
-osg::Drawable* City::createArea(osg::Vec3 a,osg::Vec3 b,osg::Vec3 c,osg::Vec3 d)
+osg::Drawable* City::createPlane(osg::Vec3 a,osg::Vec3 b,osg::Vec3 c,osg::Vec3 d)
 {
 	osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
 	vertices->push_back(a);
@@ -9,22 +9,25 @@ osg::Drawable* City::createArea(osg::Vec3 a,osg::Vec3 b,osg::Vec3 c,osg::Vec3 d)
 	vertices->push_back(c);
 	vertices->push_back(d);
 
-	osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array(4);
-	(*normals)[0].set(0.0,0.0,1.0);
-	(*normals)[1].set(0.0,0.0,1.0);
-	(*normals)[2].set(0.0,0.0,1.0);
-	(*normals)[3].set(0.0,0.0,1.0);
+	osg::Vec3 AB = b - a;
+	osg::Vec3 AD = d - a;
+	osg::Vec3 normal = AB^AD;
+	normal.normalize();
+
+	osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
+	normals->push_back(normal);
+
 
 	osg::ref_ptr<osg::Geometry> area = new osg::Geometry;
 	area->setVertexArray(vertices.get());
 	area->setNormalArray(normals.get());
-	area->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
+	area->setNormalBinding(osg::Geometry::BIND_OVERALL);
 	area->addPrimitiveSet(new osg::DrawArrays(osg::DrawArrays::QUADS,0,4));
 
 	return area.release();
 }
 
-void City::createCity()
+void City::createArea()
 {
 	osg::Vec3 a,b,c,d;
 	a.set(0.0,0.0,0.0);
@@ -40,7 +43,7 @@ void City::createCity()
 		{
 			initArea(a,c);
 	
-			m_geode->addDrawable(createArea(a,b,c,d));
+			m_geodeArea->addDrawable(createPlane(a,b,c,d));
 			a += osg::Vec3(increment,0.0,0.0);
 			b += osg::Vec3(increment,0.0,0.0);
 			c += osg::Vec3(increment,0.0,0.0);
@@ -68,9 +71,9 @@ void City::initArea(const osg::Vec3& min, const osg::Vec3& max)
 	area.minY = min.y();
 	area.maxX = max.x();
 	area.maxY = max.y();
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < m_divide; i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (size_t j = 0; j < m_divide; j++)
 			area.occupy[i][j] = 0;
 	}
 	area.full = false;
@@ -78,11 +81,11 @@ void City::initArea(const osg::Vec3& min, const osg::Vec3& max)
 
 }
 
-void setArea( Area& area)
+void City::setArea( Area& area)
 {
-	for (int i = 0; i < 3; i++)
+	for (size_t i = 0; i < m_divide; i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (size_t j = 0; j < m_divide; j++)
 		{
 			if( area.occupy[i][j] == 0)
 				return;
@@ -90,3 +93,88 @@ void setArea( Area& area)
 	}
 	area.full = true;
 }
+
+osg::Geode* City::createBuilding()
+{
+	float gridWidth = m_lengthArea / m_divide;
+	
+	srand( m_seed+RAND(0.0,100.0));
+	float length = RAND(3.0,10.0);
+	float width = RAND(3.0,10.0);
+	float height = RAND(10.0,30.0);
+
+	float startX = ( gridWidth - width ) / 2.0;
+	float startY = ( gridWidth - length ) / 2.0;
+
+	osg::Vec3 a,b,c,d;
+	osg::Vec3 A,B,C,D;
+	
+	a.set(startX,startY,OFFSET);
+	b.set(startX+width,startY,OFFSET);
+	c.set(startX+width,startY+length,OFFSET);
+	d.set(startX,startY+length,OFFSET);
+
+	A.set(startX,startY,height);
+	B.set(startX+width,startY,height);
+	C.set(startX+width,startY+length,height);
+	D.set(startX,startY+length,height);
+
+	osg::ref_ptr<osg::Geode> building = new osg::Geode;
+	building->addDrawable(createPlane(a,b,c,d));//底面
+	building->addDrawable(createPlane(A,B,C,D));//上面
+	building->addDrawable(createPlane(a,b,B,A));//前面
+	building->addDrawable(createPlane(c,d,D,C));//后面
+	building->addDrawable(createPlane(d,a,A,D));//左面
+	building->addDrawable(createPlane(b,c,C,B));//右面
+
+	return building.release();
+	
+}
+
+osg::Group* City::createAreaBuildings( size_t index)
+{
+	float gridWidth = m_lengthArea / m_divide;
+	osg::ref_ptr<osg::Group> group = new osg::Group;
+
+	for( size_t i = 0; i < m_divide; i++)
+		for ( size_t j = 0; j < m_divide; j++)
+		{
+			if( m_arrayArea[index].occupy[i][j] == 1)
+				continue;
+			else
+			{
+				osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
+				mt->setMatrix( osg::Matrix::translate( j*gridWidth,i*gridWidth,0.0));
+				mt->addChild(createBuilding());
+				group->addChild(mt.get());
+
+				m_arrayArea[0].occupy[i][j] = 1;
+			}
+		}
+
+	return group.release();
+
+
+}
+
+void City::createCityBuildings()
+{
+	
+	for( size_t k = 0; k != m_arrayArea.size(); k++)
+	{
+		size_t m = k / 10;
+		size_t n = k % 10;
+
+		osg::ref_ptr<osg::Group> group = new osg::Group;
+		osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
+		mt->setMatrix( osg::Matrix::translate( n * (m_lengthArea+m_widthRoad), m * (m_lengthArea+m_widthRoad),0.0));
+		group->addChild(mt.get());
+		mt->addChild(createAreaBuildings(k));
+
+		m_buildings->addChild(group.get());		
+	}
+	
+}
+
+
+

@@ -13,8 +13,10 @@ int main( int argc, char **argv )
 	osg::ref_ptr<osg::Group> root = new osg::Group;
 
 	City city;
-	city.createCity();
-	root->addChild(city.getCity());
+	city.createArea();
+	city.createCityBuildings();
+	root->addChild(city.getArea());
+	root->addChild(city.getBuildings());
 
 // 	CityManipulator* manipulator = new CityManipulator();
 // 	viewer.setCameraManipulator(manipulator);
