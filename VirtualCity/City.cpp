@@ -98,10 +98,10 @@ osg::Geode* City::createBuilding()
 {
 	float gridWidth = m_lengthArea / m_divide;
 	
-	srand( m_seed+RAND(0.0,100.0));
-	float length = RAND(3.0,10.0);
+	
+	float length = RAND(3.0,10.0);	
 	float width = RAND(3.0,10.0);
-	float height = RAND(10.0,30.0);
+	float height = RAND(10.0,50.0);
 
 	float startX = ( gridWidth - width ) / 2.0;
 	float startY = ( gridWidth - length ) / 2.0;
