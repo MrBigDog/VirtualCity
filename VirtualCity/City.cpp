@@ -37,9 +37,9 @@ void City::createArea()
 
 	int increment = m_lengthArea + m_widthRoad;
 
-	for ( int i = 0; i < 10; i++)
+	for ( int i = 0; i < ROW; i++)
 	{
-		for ( int j = 0; j < 10; j++)
+		for ( int j = 0; j < COLUMN; j++)
 		{
 			initArea(a,c);
 	
@@ -99,9 +99,9 @@ osg::Geode* City::createBuilding()
 	float gridWidth = m_lengthArea / m_divide;
 	
 	
-	float length = RAND(3.0,10.0);	
-	float width = RAND(3.0,10.0);
-	float height = RAND(10.0,50.0);
+	float length = RAND(MinSize,gridWidth);	
+	float width = RAND(MinSize,gridWidth);
+	float height = RAND(gridWidth,HEIGHT);
 
 	float startX = ( gridWidth - width ) / 2.0;
 	float startY = ( gridWidth - length ) / 2.0;
@@ -162,8 +162,8 @@ void City::createCityBuildings()
 	
 	for( size_t k = 0; k != m_arrayArea.size(); k++)
 	{
-		size_t m = k / 10;
-		size_t n = k % 10;
+		size_t m = k / ROW;
+		size_t n = k % COLUMN;
 
 		osg::ref_ptr<osg::Group> group = new osg::Group;
 		osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;

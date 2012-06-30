@@ -2,6 +2,7 @@
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/StateSetManipulator>
+#include <osgDB/WriteFile>
 
 #include "City.h"
 #include "CityManipulator.h"
@@ -25,8 +26,9 @@ int main( int argc, char **argv )
 	viewer.addEventHandler(new osgViewer::StatsHandler);
 	viewer.addEventHandler(new osgViewer::WindowSizeHandler);
 	viewer.setSceneData(root.get());
-
-	return viewer.run();
+	
+	osgDB::writeNodeFile(*root,"cityBuildings.osg");
+	return 0;//viewer.run();
 
 
 }

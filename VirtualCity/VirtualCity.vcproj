@@ -195,11 +195,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\BuildingVisitor.h"
+				>
+			</File>
+			<File
 				RelativePath=".\City.h"
 				>
 			</File>
 			<File
 				RelativePath=".\CityManipulator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MyMatrixTransform.h"
 				>
 			</File>
 		</Filter>

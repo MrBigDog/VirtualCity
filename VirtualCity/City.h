@@ -8,9 +8,16 @@
 #include <osg/MatrixTransform>
 #include <time.h>
 
+#include "MyMatrixTransform.h"
+
 
 #define OFFSET 0.1
-#define RAND(min, max)  (min) + ( (double)rand() / ((double)RAND_MAX+1) * ((max) - (min)) )  //((min) + (int)rand()%((int)(max)-(int)(min)))
+#define RAND(min, max)  (min) + ( (double)rand() / ((double)RAND_MAX+1) * ((max) - (min)) )   
+#define ROW 10
+#define COLUMN 10
+#define HEIGHT 30.0
+#define MinSize 3.0
+
 
 struct Area
 {
