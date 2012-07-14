@@ -173,19 +173,21 @@
 	<Files>
 		<Filter
 			Name="Ô´ÎÄ¼þ"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\City.cpp"
-				>
-			</File>
 			<File
 				RelativePath=".\CityManipulator.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\QuadNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\QuadTree.cpp"
 				>
 			</File>
 		</Filter>
@@ -195,19 +197,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\BuildingVisitor.h"
-				>
-			</File>
-			<File
-				RelativePath=".\City.h"
-				>
-			</File>
-			<File
 				RelativePath=".\CityManipulator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\MyMatrixTransform.h"
+				RelativePath=".\InsertCallbacksVisitor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\QuadNode.h"
+				>
+			</File>
+			<File
+				RelativePath=".\QuadTree.h"
 				>
 			</File>
 		</Filter>

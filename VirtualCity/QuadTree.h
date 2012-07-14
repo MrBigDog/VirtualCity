@@ -4,9 +4,12 @@
 #include "QuadNode.h"
 
 #include <osg/Node>
-
+#include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
 #include <vector>
 #include <queue>
+#include <string>
+#include <sstream>
 #include <assert.h>
 
 
@@ -20,11 +23,19 @@ class QuadTree
 
 public:
 
-	QuadTree(const size_t depth, osg::Node* OriginRoot);
+	QuadTree(const size_t depth, osg::Node* OriginRoot,bool loose = false);
 	void buildQuadTree(QuadNode* root);
-	void print() const;
-	void addItem( osg::ref_ptr<osg::Node> node);
+	void print(std::string s) const;
+	void addItem( osg::Node* node);
 	size_t fitSize( const osg::BoundingBox& boundingbox);
+	void fillQuadTree();
+	std::string constructBuildingName( size_t index);
+	QuadNode* getRoot(){ return m_ArrayQuadNodePointer[0].get();}
+	void setLoose( bool loose){ m_loose = loose;}
+	bool getLoose() const{ return m_loose;}
+	void writeToFile(const std::string& s);
+	size_t getCount(){ return getRoot()->getCount();}
+	void adjustSize();
 
 
 

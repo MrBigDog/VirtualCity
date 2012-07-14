@@ -4,31 +4,41 @@
 #include <osgGA/StateSetManipulator>
 #include <osgDB/WriteFile>
 
-#include "City.h"
+#include "InsertCallbacksVisitor.h"
 #include "CityManipulator.h"
+#include "QuadTree.h"
+
+
 
 int main( int argc, char **argv )
 {
 
 	osgViewer::Viewer viewer;
-	osg::ref_ptr<osg::Group> root = new osg::Group;
+	osg::Node* root = osgDB::readNodeFile("../data/Buildings.osg");
+ 	QuadTree tree(4,root,false);
+ 	//tree.print("../data/LooseNode.txt");
+	InsertCallbacksVisitor visitor;
+	tree.getRoot()->accept(visitor);
 
-	City city;
-	city.createArea();
-	city.createCityBuildings();
-	root->addChild(city.getArea());
-	root->addChild(city.getBuildings());
-
-// 	CityManipulator* manipulator = new CityManipulator();
-// 	viewer.setCameraManipulator(manipulator);
+	CityManipulator* manipulator = new CityManipulator();
+	//manipulator->setHomePosition(osg::Vec3(195.0,195.0,250.0),osg::Vec3(195.0,195.0,-100.0),osg::Vec3(0.0,0.0,1.0));
+	//manipulator->setHomePosition(osg::Vec3(0.0,50.0,200.0),osg::Vec3(380,380.0,-200.0),osg::Vec3(0.0,0.0,1.0));
+	manipulator->setHomePosition(osg::Vec3(195.0,20.0,15.0),osg::Vec3(195.0,100.0,15.0),osg::Vec3(0.0,0.0,1.0));
+	viewer.setCameraManipulator(manipulator);
 	
 	viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );
 	viewer.addEventHandler(new osgViewer::StatsHandler);
 	viewer.addEventHandler(new osgViewer::WindowSizeHandler);
-	viewer.setSceneData(root.get());
-	
-	osgDB::writeNodeFile(*root,"cityBuildings.osg");
-	return 0;//viewer.run();
 
+
+	viewer.setSceneData(tree.getRoot());
+/*	return viewer.run();*/
+ 	size_t count = 0;
+	while( !viewer.done())
+	{
+		count = tree.getCount();
+		viewer.frame();
+	}
+  	return 0;
 
 }

@@ -8,7 +8,7 @@
 #include <osg/MatrixTransform>
 #include <time.h>
 
-#include "MyMatrixTransform.h"
+
 
 
 #define OFFSET 0.1
