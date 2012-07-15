@@ -7,6 +7,8 @@
 #include <osg/Geometry>
 #include <osg/MatrixTransform>
 #include <time.h>
+#include <fstream>
+#include <iostream>
 
 
 
@@ -49,6 +51,8 @@ public:
 	osg::Geode* createBuilding();
 	void createCityBuildings();
 	osg::Group* createAreaBuildings( size_t index);
+	void writePathToFile(const std::string str);
+	void writeAdjacencyToFile(const std::string str);
 
 
 private:

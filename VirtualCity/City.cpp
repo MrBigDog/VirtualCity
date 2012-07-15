@@ -177,4 +177,67 @@ void City::createCityBuildings()
 }
 
 
+void City::writePathToFile( const std::string str)
+{
+	std::ofstream outfile(str.c_str());
+	float x = m_widthRoad * -0.5;
+	float y = m_widthRoad * -0.5;
+	float offside = m_lengthArea + m_widthRoad;
+	for ( size_t i = 0; i < ROW + 1; ++i)
+	{
+		for ( size_t j = 0; j < COLUMN + 1; ++j )
+		{
+			outfile << x + j * offside << " "
+				    << y + i * offside << " "
+					<< 0.1 << std::endl;
+		}
 
+	}
+		
+}
+
+
+void City::writeAdjacencyToFile(const std::string str)
+{
+	size_t num = ROW + 1;
+	
+	std::vector< std::vector<size_t> > arr;
+	for ( int i = 0; i < num*num; ++i)
+	{
+		std::vector<size_t> vec(num*num,0);
+		arr.push_back(vec);
+	}
+		
+	for ( int i = 0; i < num*num; ++i)
+	{
+		int j  = 0;
+		j = i + 1;
+		if ( j < num * num && i / num == j / num)
+		{
+			arr[i][j] = 1;
+			arr[j][i] = 1;
+		}
+		j = i + num;
+		if ( j < num * num)
+		{
+			arr[i][j] = 1;
+			arr[j][i] = 1;
+		}
+
+		
+		arr[i][i] = 1;
+
+	}
+
+	std::ofstream outfile(str.c_str());
+	for ( int i = 0; i < num * num; ++i)
+	{
+		for ( int j = 0; j < num * num; ++j)
+		{
+			outfile << arr[i][j] << " ";
+		}
+
+		outfile << std::endl;
+	}
+	
+}

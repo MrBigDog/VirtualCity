@@ -175,11 +175,19 @@
 			Name="源文件"
 			>
 			<File
-				RelativePath=".\CityManipulator.cpp"
+				RelativePath=".\City.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HitVisitor.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Path.cpp"
 				>
 			</File>
 			<File
@@ -190,6 +198,22 @@
 				RelativePath=".\QuadTree.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\Signal.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TransformNodeCallback.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Transport.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Vehicle.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="头文件"
@@ -197,11 +221,23 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\CityManipulator.h"
+				RelativePath=".\City.h"
 				>
 			</File>
 			<File
-				RelativePath=".\InsertCallbacksVisitor.h"
+				RelativePath=".\HitVisitor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InfoVisitor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MyTransform.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Path.h"
 				>
 			</File>
 			<File
@@ -210,6 +246,26 @@
 			</File>
 			<File
 				RelativePath=".\QuadTree.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Signal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\struct.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TransformNodeCallback.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Transport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Vehicle.h"
 				>
 			</File>
 		</Filter>
