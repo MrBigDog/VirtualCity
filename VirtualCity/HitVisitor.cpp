@@ -1,5 +1,8 @@
 #include "HitVisitor.h"
 
+size_t CHitVisitor::s_count;
+
+
 CHitVisitor::CHitVisitor():osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),m_isCrush(false)
 {
 	m_center.set(0.0,0.0,0.0);
@@ -16,7 +19,8 @@ void CHitVisitor::setCenter(osg::Vec3& end)
 
 void CHitVisitor::apply(osg::MatrixTransform& mt)
 {
-	osg::MyTransform* transform = dynamic_cast<osg::MyTransform*>(&mt);
+	//++s_count;
+	MyTransform* transform = dynamic_cast<MyTransform*>(&mt);
 	if(transform)
 	{
 		osg::Vec3 tmp;
@@ -32,7 +36,5 @@ void CHitVisitor::apply(osg::MatrixTransform& mt)
 		}
 
 	}
-
-
 	
 }

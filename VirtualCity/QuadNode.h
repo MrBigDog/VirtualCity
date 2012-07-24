@@ -9,22 +9,35 @@
 #include <assert.h>
 #include <fstream>
 
+#include "MyTransform.h"
+#include "InfoVisitor.h"
+
 
 class FrustumCullCallback;
 
 class  QuadNode : public osg::Group
 {
 public :
+	QuadNode(){}
 
-	QuadNode():m_Level(0),m_ratio(2.0)
+	QuadNode( size_t maxlevel):m_Level(0),m_ratio(2.0),m_MaxLevel(maxlevel)
 	{
-		setCullCallback(new QuadNodeCullCallback);
+		//setCullCallback(new QuadNodeCullCallback);
 		m_BoundingBox.set(0.0,0.0,0.0,0.0,0.0,0.0);
-		this->setCullingActive(false);
+		//this->setCullingActive(false);
+		//setUpdateCallback(new QuadNodeUpdataCallback);
+		setDataVariance(osg::Object::DYNAMIC);
 	}
 
+	QuadNode(const QuadNode& qnode,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY):osg::Group(qnode,copyop){}
+
+	META_Node(osg, QuadNode);
+	virtual QuadNode* asQuadNode() { return this; }
+	virtual const QuadNode* asQuadNode() const { return this; }
 
 	bool contain( const osg::BoundingBox& boundingbox);
+
+	bool contain( const osg::Node* node);
 	
 	void setSize(const osg::BoundingBox& bb)
 	{
@@ -59,7 +72,7 @@ public :
 			m_BoundingBox.zMax() = height;
 		}
 		osg::Group* group = static_cast<osg::Group*>(this);
-		for ( int i = 1; i < m_Level; ++i)
+		for ( size_t i = 1; i != m_Level; ++i)
 		{
 			group = group->getParent(0);
 			QuadNode* quad = dynamic_cast<QuadNode*>(group);
@@ -75,6 +88,8 @@ public :
 	void setBoundingBox(const osg::BoundingBox& bb){ m_BoundingBox = bb;}
 
 	void expand();
+
+	void addItem( Node* node);
 	
 	class QuadNodeCullCallback : public osg::NodeCallback
 	{
@@ -99,7 +114,63 @@ public :
 		}
 	};
 
+
+	class QuadNodeUpdataCallback : public osg::NodeCallback
+	{
+		virtual void operator()(osg::Node* node, osg::NodeVisitor* nv)
+		{ 
+
+			QuadNode* quadnode = dynamic_cast<QuadNode*>(node);
+		
+			osg::Node* child = NULL;
+			MyTransform* trans = NULL;
+
+			size_t size = quadnode->getNumChildren();
+			
+			size_t i = 0;
+			if( quadnode->getLevel() != quadnode->getMaxLevel())
+				i = 4;
+	
+			for ( int i=0; i != quadnode->getNumChildren(); ++i)
+			{
+
+				child = quadnode->getChild(i);
+				if ( child)
+					trans = dynamic_cast<MyTransform*>(child);
+				else
+					break;
+
+				if( trans )
+				{
+					if ( quadnode->contain(child))
+						continue;
+					else
+					{		
+ 						QuadNode* parent = static_cast<QuadNode*>(quadnode->getParent(0));
+ 						while ( !parent->contain(child) )
+ 							parent = dynamic_cast<QuadNode*>(parent->getParent(0));
+ 						if (parent)
+ 							parent->addItem(child);
+
+						quadnode->removeChild(i);
+						--i;
+
+					}
+
+				}
+			}
+			
+
+			
+			
+			traverse(node,nv);
+
+		}
+	};
+
 	size_t static getCount(){ return s_sum;}
+
+	const size_t getMaxLevel() const{ return m_MaxLevel;}
 	
 
 
@@ -114,6 +185,7 @@ private:
 	float m_ratio;
 	std::vector< osg::ref_ptr<osg::Node> > m_RenderList;
 	static size_t s_sum;
+	size_t m_MaxLevel;
 
 };
 

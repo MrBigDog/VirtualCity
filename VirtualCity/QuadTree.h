@@ -24,6 +24,7 @@ class QuadTree
 public:
 
 	QuadTree(const size_t depth, osg::Node* OriginRoot,bool loose = false);
+	QuadTree(const size_t depth, const osg::BoundingBox bb,bool loose = false);
 	void buildQuadTree(QuadNode* root);
 	void print(std::string s) const;
 	void addItem( osg::Node* node);

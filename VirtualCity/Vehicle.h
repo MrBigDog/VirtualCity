@@ -33,7 +33,7 @@ public:
 	void createSequncePath( const osg::ref_ptr<osg::Vec3Array>& junctionArray,std::vector<int>& index);
 	osg::ref_ptr<osg::AnimationPath> outputScene(const osg::ref_ptr<osg::Vec3Array>& junctionArray , double width ,unsigned int num);
 	void getNet();
-	void setSpeed( int speed){ m_speed =  rand() %  speed + 1;}
+	void setSpeed( int speed){ m_speed =  rand() %  speed + 3;}
 	void calculateAngleList( const osg::ref_ptr<osg::Vec3Array>& junctionArray);
 	double calculateAngle(osg::Vec3 vecA,osg::Vec3 vecB);
 	void generatePath(osg::ref_ptr<osg::Vec3Array> driveway , double width);//生成行驶路径

@@ -1,7 +1,12 @@
 #include "Transport.h"
 #include "MyTransform.h"
 
-CTransport::CTransport(CPath* path):m_number(1),m_path(path)
+CTransport::CTransport(CPath* path,QuadTree* tree):m_number(1),m_path(path),m_tree(tree),m_isQuadTree(true)
+{ 
+
+}
+
+CTransport::CTransport(CPath* path):m_number(1),m_path(path),m_tree(NULL),m_isQuadTree(false)
 { 
 
 }
@@ -38,43 +43,23 @@ osg::ref_ptr<osg::Group> CTransport::outoutputScene()
 	osg::ref_ptr<osg::Group> group = new osg::Group;
 
 // 	std::vector<int> vec1;
+// 	vec1.push_back(0);
+// 	vec1.push_back(1);
+// 	vec1.push_back(2);
+// 	vec1.push_back(3);
+// 	vec1.push_back(4);
 // 	vec1.push_back(5);
-// 	vec1.push_back(15);
-// 	vec1.push_back(25);
-// 	vec1.push_back(35);
-// 	vec1.push_back(45);
-// 	vec1.push_back(55);
-// 	vec1.push_back(65);
-// 	vec1.push_back(75);
-
-// 	std::vector<int> vec2;
-// 	vec2.push_back(7);
-// 	vec2.push_back(6);
-// 	vec2.push_back(5);
-// 	vec2.push_back(4);
-// 	vec2.push_back(3);
-// 	vec2.push_back(2);
-// 	vec2.push_back(1);
-// 	vec2.push_back(0);
-// 
-// 	std::vector<int> vec3;
-// 	vec3.push_back(2);
-// 	vec3.push_back(3);
-// 	vec3.push_back(4);
-// 	vec3.push_back(5);
-// 	vec3.push_back(6);
-// 	vec3.push_back(7);
-// 	vec3.push_back(8);
-// 	vec3.push_back(9);
-
-
-
+// 	vec1.push_back(6);
+// 	vec1.push_back(7);
+// 	vec1.push_back(8);
+// 	vec1.push_back(9);
 
 	for (int i = 0;i!=m_number;i++)
 	{
 		CVehicle car;
 		car.setSpeed(m_speed);
 		car.createRandomPath(junctionArray,junctionAdjacency);
+		//car.createSequncePath(junctionArray,vec1);
 
 		std::vector<unsigned int>* vec= car.getIndex();
 		if ( vec->size() < 20)
@@ -88,23 +73,28 @@ osg::ref_ptr<osg::Group> CTransport::outoutputScene()
 		osg::ref_ptr<osg::AnimationPath> animationPath = car.outputScene(junctionArray,m_path->getWidthRoad(),m_path->getNumRoad());
 		animationPath->setLoopMode( osg::AnimationPath::LOOP );
 
-		osg::ref_ptr<osg::MyTransform> transform = new osg::MyTransform;
+		osg::ref_ptr<MyTransform> transform = new MyTransform;
 		transform->addChild(m_model[i%m_model.size()]);
 		
-		transform->setUpdateCallback( new CTransformNodeCallback(animationPath,m_signal.getCrossingArray(),indexArray,car.getLoc()));
+		transform->setUpdateCallback( new CTransformNodeCallback(animationPath,m_signal.getCrossingArray(),indexArray,car.getLoc(),m_tree));
 
-	
-		group->addChild( transform );
+		if ( m_isQuadTree)
+			m_tree->addItem(transform);
+		else
+			group->addChild( transform );
 		
 		
 	}
-
-	return group.release();
+	if( m_isQuadTree)
+		return m_tree->getRoot();
+	else
+		return group.release();
 }
 
 void CTransport::update()
 {
 	m_signal.updateSignal();
+	updateScene();
 }
 
 
@@ -147,4 +137,21 @@ std::vector<stindex>  CTransport::calMap(const std::vector<unsigned int>* index,
 
 	return indexArray;
 
+}
+
+
+void CTransport::updateScene()
+{
+	for ( size_t i = 0; i != CTransformNodeCallback::s_DeleteList.size(); ++i)
+	{
+		osg::Group* group = CTransformNodeCallback::s_DeleteList[i]->getParent(0);
+		size_t index = group->getChildIndex( CTransformNodeCallback::s_DeleteList[i].get() );
+		group->removeChild(index);
+		m_tree->addItem( CTransformNodeCallback::s_DeleteList[i].get() );
+	}
+	
+	CTransformNodeCallback::s_DeleteList.clear();
+
+// 	size_t count  = CTransformNodeCallback::s_count;
+// 	CTransformNodeCallback::resetCount();
 }

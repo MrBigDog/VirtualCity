@@ -3,9 +3,17 @@
 
 
 #define LENGTH 15.0
-#define  SIZE 5.0
+#define  SIZE 10.0
 
-CTransformNodeCallback::CTransformNodeCallback(osg::AnimationPath* ap, std::vector<crossingstruct>* crossingArray,std::vector<stindex> indexArray,unsigned int loc):osg::AnimationPathCallback(ap),m_crossingArray(crossingArray),m_indexArray(indexArray),m_count(0)
+std::vector< osg::ref_ptr<MyTransform> > CTransformNodeCallback::s_DeleteList;
+size_t CTransformNodeCallback::s_count = 0;
+
+CTransformNodeCallback::CTransformNodeCallback(osg::AnimationPath* ap, std::vector<crossingstruct>* crossingArray,std::vector<stindex> indexArray,unsigned int loc,QuadTree* tree)
+								   :osg::AnimationPathCallback(ap),
+									m_crossingArray(crossingArray),
+									m_indexArray(indexArray),
+									m_count(0),
+									m_tree(tree)
 { 
 	 osg::AnimationPath::ControlPoint cp;
 	 osg::AnimationPath *aa = getAnimationPath();
@@ -38,18 +46,21 @@ void CTransformNodeCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
 		}
 	}
 
+	//判断位置，置入合适的四叉树节点
+ 	osg::Group* group = node->getParent(0);
+ 	QuadNode* qnode = dynamic_cast<QuadNode*>(group);
+ 	if ( !qnode->contain(node))
+	{
+		osg::ref_ptr<MyTransform> refTransform = static_cast<MyTransform*>(node);
+		s_DeleteList.push_back( refTransform );
+	}
 
 
 	osg::Vec3 tmp1 = node->getBound()._center - m_bs._center;
-	//m_size = 2 * node->getBound()._radius;
-
-	osg::Vec3 tmp2(0.0,0.0,0.0);
-	if(tmp1 != tmp2)
+	float length = tmp1.length();
+	if ( length > 0.00001)
 		m_dirction = tmp1;
 
-// 	double d = tmp1.length();
-// 	if( d > 1.0)
-// 		m_dirction = tmp1;
 
 	m_dirction.normalize();
 	m_bs = node->getBound();
@@ -61,10 +72,12 @@ void CTransformNodeCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
  		m_hitVisitor.setIsCrush( false);
  	}
 	else
-		setPause( isStopBySignal())	;				//判断小车在路口与交通灯的情况
+		setPause(false);
+// 	else
+// 		setPause( isStopBySignal())	;				//判断小车在路口与交通灯的情况
 		
-
-
+	//s_count = CHitVisitor::getCount();
+	//CHitVisitor::resetCount();
 
 }
 
@@ -76,8 +89,9 @@ bool CTransformNodeCallback::isStopByCar(osg::Node* node)
 
 	m_hitVisitor.setCenter(end);
 	node->accept(m_hitVisitor);
-
 	
+
+
 	return m_hitVisitor.getIsCrush();
 
 }

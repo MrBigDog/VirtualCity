@@ -15,7 +15,7 @@ void CVehicle::createRandomPath(const osg::ref_ptr<osg::Vec3Array>& junctionArra
 
 	std::vector<unsigned int> temp1,temp2;
 
-	unsigned int length = 50;  //定义路径长度
+	unsigned int length = 25;  //定义路径长度
 	unsigned int begin=0,end=0,temp=0;
 
 	begin = rand() % junctionArray->size();

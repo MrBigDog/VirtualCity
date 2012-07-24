@@ -44,6 +44,55 @@ size_t QuadNode::s_sum;
  }
 
 
+ bool QuadNode::contain( const osg::Node* node)
+ {
+	 osg::BoundingSphere bs = node->getBound();
+	 if ( bs._center.x() < m_BoundingBox.xMin() ||
+		  bs._center.x() > m_BoundingBox.xMax() ||
+		  bs._center.y() < m_BoundingBox.yMin() ||
+		  bs._center.y() > m_BoundingBox.yMax() ||
+		  bs._radius > getWidth()				||
+		  bs._radius > getLength()
+		 )
+		return false;
+	 return true;
+ }
+
+
+ void QuadNode::addItem( osg::Node* node)
+ {
+	 osg::BoundingSphere bs = node->getBound();
+
+	 QuadNode* q = this;
+
+	 for(;;)
+	 {
+		if ( q->getMaxLevel() == q->getLevel())
+			break;
+
+		 osg::Vec2 v((m_BoundingBox.xMax()+m_BoundingBox.xMin())*0.5,(m_BoundingBox.yMax()+m_BoundingBox.yMin())*0.5);   //四叉树节点中点
+		 size_t index = 0;
+		 if ( bs._center.x() > v.x() && bs._center.y() < v.y())
+			 index = 1;
+		 if ( bs._center.x() > v.x() && bs._center.y() > v.y())
+			 index = 2;
+		 if ( bs._center.x() < v.x() && bs._center.y() > v.y())
+			 index = 3;
+
+
+		 q = dynamic_cast<QuadNode*>(q->getChild(index));
+		 if (q && q->contain(node))
+			continue;
+		 else
+			 break;
+
+	 }
+
+	 q->addChild(node);
+	 q->setMaxHeight(bs._center.z()+bs._radius);
+ }
+
+
  void QuadNode::expand()
  {
 	float m = 1.0 / m_ratio; 	

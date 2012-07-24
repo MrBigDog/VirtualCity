@@ -162,6 +162,10 @@ osg::ref_ptr<osg::Geode> CPath::outputScene()
 		}
 		osg::ref_ptr<osg::Geometry> road = new osg::Geometry;
 		road->setVertexArray(vertices.get());
+		osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
+		colors->push_back(osg::Vec4(0.0,0.7,0.0,1.0));
+		road->setColorArray(colors.get());
+		road->setColorBinding(osg::Geometry::BIND_OVERALL);
 		road->addPrimitiveSet(new osg::DrawArrays(osg::DrawArrays::LINES,0,vertices->size()));
 		geode->addDrawable(road.get());
 	}
@@ -175,7 +179,7 @@ osg::ref_ptr<osg::Geode> CPath::outputScene()
 
 void CPath::saveToFile()
 {
-	std::ofstream outfile("data/junction.txt");
+	std::ofstream outfile("../data/PathPoints.txt");
 	assert(outfile != NULL);
 
 	std::stringstream ss;
@@ -204,7 +208,7 @@ void CPath::saveToFile()
 	outfile.close();
 	
 
-	outfile.open("data/adjacency.txt");
+	outfile.open("../data/adjacency.txt");
 	for ( int i = 0; i != m_junctionArray->size(); ++i)
 	{
 		for ( int j = 0; j != m_junctionArray->size(); ++j)

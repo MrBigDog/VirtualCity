@@ -202,23 +202,23 @@ void City::writeAdjacencyToFile(const std::string str)
 	size_t num = ROW + 1;
 	
 	std::vector< std::vector<size_t> > arr;
-	for ( int i = 0; i < num*num; ++i)
+	for ( size_t i = 0; i != num*num; ++i)
 	{
 		std::vector<size_t> vec(num*num,0);
 		arr.push_back(vec);
 	}
 		
-	for ( int i = 0; i < num*num; ++i)
+	for ( size_t i = 0; i != num*num; ++i)
 	{
-		int j  = 0;
+		size_t j  = 0;
 		j = i + 1;
-		if ( j < num * num && i / num == j / num)
+		if ( j != num * num && i / num == j / num)
 		{
 			arr[i][j] = 1;
 			arr[j][i] = 1;
 		}
 		j = i + num;
-		if ( j < num * num)
+		if ( j != num * num)
 		{
 			arr[i][j] = 1;
 			arr[j][i] = 1;
@@ -230,9 +230,9 @@ void City::writeAdjacencyToFile(const std::string str)
 	}
 
 	std::ofstream outfile(str.c_str());
-	for ( int i = 0; i < num * num; ++i)
+	for ( size_t i = 0; i != num * num; ++i)
 	{
-		for ( int j = 0; j < num * num; ++j)
+		for ( size_t j = 0; j != num * num; ++j)
 		{
 			outfile << arr[i][j] << " ";
 		}

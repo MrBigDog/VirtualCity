@@ -5,7 +5,7 @@ QuadTree::QuadTree(const size_t depth, osg::Node* OriginRoot,bool loose):m_depth
 {
     assert( m_depth <= MAXDEPTH);
 	
-	osg::ref_ptr<QuadNode> node = new QuadNode();
+	osg::ref_ptr<QuadNode> node = new QuadNode(depth);
 	node->setLevel(1);
 
 	osg::ComputeBoundsVisitor boundvisitor;
@@ -18,11 +18,24 @@ QuadTree::QuadTree(const size_t depth, osg::Node* OriginRoot,bool loose):m_depth
 	buildQuadTree(node.get());
 	if( loose )
 		adjustSize();
-	fillQuadTree();
+	//fillQuadTree();
 
+}
 
-	
+QuadTree::QuadTree(const size_t depth, const osg::BoundingBox bb,bool loose):m_depth(depth),m_loose(loose)
+{
+	assert( m_depth <= MAXDEPTH);
 
+	osg::ref_ptr<QuadNode> node = new QuadNode(m_depth);
+	node->setLevel(1);
+
+	node->setSize(bb);
+
+	m_ArrayQuadNodePointer.push_back(node);
+	buildQuadTree(node.get());
+	if( loose )
+		adjustSize();
+	//fillQuadTree();
 
 }
 
@@ -70,11 +83,8 @@ void QuadTree::print(std::string s) const
 
 void QuadTree::addItem( osg::Node* node)
 {
-	osg::ComputeBoundsVisitor boundvisitor;
-	node->accept(boundvisitor);
-	osg::BoundingBox boundingbox;
-	boundingbox = boundvisitor.getBoundingBox();
-	osg::Vec2 midpoint((boundingbox.xMax()+boundingbox.xMin())*0.5,(boundingbox.yMax()+boundingbox.yMin())*0.5);
+	osg::BoundingSphere bs = node->getBound();
+	osg::Vec2 midpoint(bs._center.x(),bs._center.y());
 
 	QuadNode* p = m_ArrayQuadNodePointer[0];
 
@@ -93,8 +103,8 @@ void QuadTree::addItem( osg::Node* node)
 		if( p->getLevel() < m_depth)
 		{
 			QuadNode* q = dynamic_cast<QuadNode*>(p->getChild(index));
-			if (q && q->contain(boundingbox))
-				p = q;	
+			if (q && q->contain(node))
+				p = q;	 
 			else
 				break;
 		}		
@@ -102,7 +112,7 @@ void QuadTree::addItem( osg::Node* node)
 			break;
 	}
 	p->addChild(node);
-	p->setMaxHeight(boundingbox.zMax());
+	p->setMaxHeight(bs._center.z()+bs._radius);
 
 }
 

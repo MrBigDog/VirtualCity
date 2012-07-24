@@ -1,3 +1,4 @@
+#pragma once 
 #include <osg/Node>
 #include <osgDB/ReadFile>
 #include <iostream>
