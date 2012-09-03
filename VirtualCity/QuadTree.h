@@ -11,9 +11,14 @@
 #include <string>
 #include <sstream>
 #include <assert.h>
+#include <osg/PagedLOD>
+#include <osg/Billboard>
+#include <osg/Texture2D>
+#include "windows.h"
 
 
 #define MAXDEPTH 8 
+#define RAND(min,max) ((min)+(double)rand()/(RAND_MAX+1)*((max)-(min)))
 
 const size_t LevelIndex[MAXDEPTH] ={0,1,5,21,85,341,1365,5461};
 
@@ -23,8 +28,8 @@ class QuadTree
 
 public:
 
-	QuadTree(const size_t depth, osg::Node* OriginRoot,bool loose = false);
-	QuadTree(const size_t depth, const osg::BoundingBox bb,bool loose = false);
+	QuadTree(const size_t depth, osg::Node* OriginRoot,bool loose = true);
+	QuadTree(const size_t depth, const osg::BoundingBox bb,bool loose = true);
 	void buildQuadTree(QuadNode* root);
 	void print(std::string s) const;
 	void addItem( osg::Node* node);
@@ -37,6 +42,11 @@ public:
 	void writeToFile(const std::string& s);
 	size_t getCount(){ return getRoot()->getCount();}
 	void adjustSize();
+	void addAllBuildings();
+	QuadNode* findParentNode(osg::Node* node);
+	void addAllTrees();
+	void addTrees();
+	void addStaticItem(osg::Node* node);
 
 
 

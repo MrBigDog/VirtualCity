@@ -30,10 +30,11 @@ osg::Drawable* City::createPlane(osg::Vec3 a,osg::Vec3 b,osg::Vec3 c,osg::Vec3 d
 void City::createArea()
 {
 	osg::Vec3 a,b,c,d;
-	a.set(0.0,0.0,0.0);
-	b.set(m_lengthArea,0.0,0.0);
-	c.set(m_lengthArea,m_lengthArea,0.0);
-	d.set(0.0,m_lengthArea,0.0);
+	float offset = m_widthRoad / 2.0;
+	a.set(offset,offset,1.0);
+	b.set(offset + m_lengthArea,offset,0.0);
+	c.set(offset + m_lengthArea,offset + m_lengthArea,0.0);
+	d.set(offset,offset+m_lengthArea,0.0);
 
 	int increment = m_lengthArea + m_widthRoad;
 
@@ -55,10 +56,10 @@ void City::createArea()
 		c += osg::Vec3(0.0,increment,0.0);
 		d += osg::Vec3(0.0,increment,0.0);
 
-		a.x() = 0.0;
-		b.x() = m_lengthArea;
-		c.x() = m_lengthArea;
-		d.x() = 0.0;
+		a.x() = offset;
+		b.x() = offset+m_lengthArea;
+		c.x() = offset+m_lengthArea;
+		d.x() = offset;
 		
 	}
 
@@ -77,6 +78,66 @@ void City::initArea(const osg::Vec3& min, const osg::Vec3& max)
 			area.occupy[i][j] = 0;
 	}
 	area.full = false;
+
+	for (size_t i = 0; i < m_divide; i++)
+	{
+		for (size_t j = 0; j < m_divide; j++)
+		{
+			int flag;
+			double n = RAND(0,1);
+			if(  n <= 0.6)
+				flag = 1;
+			else
+				if( n <= 0.8)
+					flag = 2;
+				else
+					flag = 4;
+
+			if( area.occupy[i][j] )
+				continue;
+
+			if( flag == 1 )
+			{
+				area.occupy[i][j] = 1;
+				continue;
+			}
+				
+
+			if( flag == 2 )
+			{
+				if( (i + 1) < m_divide && !area.occupy[i+1][j] )
+				{
+					area.occupy[i][j] = 2;
+					area.occupy[i+1][j] = 2;
+					continue;
+				}
+				if( (j + 1) < m_divide && !area.occupy[i][j+1] )
+				{
+					area.occupy[i][j] = 2;
+					area.occupy[i][j+1] = 2;
+					continue;
+				}
+
+			}
+
+			if ( flag == 4)
+			{
+	
+				if ( (i + 1 ) < m_divide && ( j + 1) < m_divide && !area.occupy[i+1][j] && !area.occupy[i][j+1] && !area.occupy[i+1][j+1] )
+				{
+					area.occupy[i][j] = 4;
+					area.occupy[i][j+1] = 4;
+					area.occupy[i+1][j] = 4;
+					area.occupy[i+1][j+1] = 4;
+					continue;
+				}
+			}
+
+			j--;
+
+
+		}
+	}
 	m_arrayArea.push_back(area);
 
 }
@@ -241,3 +302,216 @@ void City::writeAdjacencyToFile(const std::string str)
 	}
 	
 }
+
+
+osg::ref_ptr<osg::Group> City::placeBuilding()
+{
+	
+	float width = m_lengthArea / m_divide;
+	osg::ref_ptr<osg::Group> root = new osg::Group;
+
+	for ( int k = 0; k != m_arrayArea.size(); k++)
+	{
+		Area area = m_arrayArea[k];
+		std::vector<int> vec;
+		osg::ref_ptr<osg::Group> group = new osg::Group;
+
+		for ( int i = 0; i < m_divide; i++)
+		{
+			for ( int j =0; j < m_divide; j++)
+			{
+				std::string orignStr = "../data/buildingmodels/obj/level-2/";
+				std::string destStr = "../data/buildingmodels/lod/lod-2/";
+
+				if(area.occupy[i][j] == 0)
+					continue;
+
+				if ( area.occupy[i][j] == 1)
+				{
+
+					float midX = area.minX + j * width + 0.5 * width;
+					float midY = area.minY + i * width + 0.5 * width;
+
+					if(!constructName( orignStr,destStr, 1, vec,k))
+					{
+						j--;
+						continue;
+					}
+					
+				//	creatNewBuildingNode( orignStr, destStr, 1, midX, midY);
+					osg::Node* node = creatNewBuildingNode( orignStr, destStr, 1, midX, midY);
+					if( node )
+						group->addChild(node);
+
+					area.occupy[i][j] = 0;
+
+				}
+
+				if (  area.occupy[i][j] == 2 )
+				{
+					if( (j+1) < m_divide && area.occupy[i][j+1] == 2 )
+					{
+						
+
+						float midX = area.minX + j * width + width;
+						float midY = area.minY + i * width + 0.5 * width;
+
+						if(!constructName( orignStr,destStr, 3, vec,k))
+						{
+							j--;
+							continue;
+						}
+						
+					//	creatNewBuildingNode( orignStr, destStr, 3, midX, midY);
+						osg::Node* node = creatNewBuildingNode( orignStr, destStr, 3, midX, midY);
+						group->addChild(node);
+						area.occupy[i][j] = 0;
+						area.occupy[i][j+1] = 0;
+
+					}
+
+
+					else
+					{
+
+						float midX = area.minX + j * width + 0.5 * width;
+						float midY = area.minY + i * width + width;
+
+						if(!constructName( orignStr,destStr, 2, vec,k))
+						{
+							j--;
+							continue;
+						}
+					
+						//creatNewBuildingNode( orignStr, destStr, 2, midX, midY);
+						osg::Node* node = creatNewBuildingNode( orignStr, destStr, 2, midX, midY);
+						group->addChild(node);
+						area.occupy[i][j] = 0;
+						area.occupy[i+1][j] = 0;
+						
+					}
+				}
+
+				if ( area.occupy[i][j] == 4)
+				{	
+					float midX = area.minX + j * width + width;
+					float midY = area.minY + i * width + width;
+
+					if(!constructName( orignStr,destStr, 4, vec,k))
+					{
+						j--;
+						continue;
+					}
+					
+					//creatNewBuildingNode( orignStr, destStr, 4, midX, midY);
+					osg::Node* node = creatNewBuildingNode( orignStr, destStr, 4, midX, midY);
+					if( node )
+						group->addChild(node);
+
+					area.occupy[i][j] = 0;
+					area.occupy[i+1][j] = 0;
+					area.occupy[i][j+1] = 0;
+					area.occupy[i+1][j+1] = 0;
+
+				}
+			}
+		}
+	}
+
+
+	return root;
+}
+
+osg::Node* City::creatNewBuildingNode( const std::string& OrignName, const std::string& DestName, int flag, float DestX, float DestY)
+{
+	osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(OrignName);
+	
+	osg::ref_ptr<osg::MatrixTransform> scale = new osg::MatrixTransform;
+	scale->setMatrix(osg::Matrix::rotate(-osg::PI_2,osg::X_AXIS));
+	scale->postMult(osg::Matrix::rotate(osg::PI_2,osg::Z_AXIS));
+	scale->postMult( osg::Matrix::scale(4.0,4.0,4.0) );
+	scale->addChild(node.get());
+
+
+	osg::ComputeBoundsVisitor visitor;
+	scale->accept(visitor);
+	osg::BoundingBox bb = visitor.getBoundingBox();
+
+	osg::StateSet* state = scale->getOrCreateStateSet();
+	state->setMode( GL_NORMALIZE, osg::StateAttribute::ON );
+
+
+ 	float offsetX = DestX - ( bb.xMax() + bb.xMin() ) * 0.5;
+ 	float offsetY = DestY - ( bb.yMax() + bb.yMin() ) * 0.5;
+ 	float offsetZ = -1.0 * bb.zMin();
+
+	scale->postMult(osg::Matrix::translate(osg::Vec3(offsetX,offsetY,offsetZ)));
+	//scale->postMult(osg::Matrix::rotate(osg::PI_2,osg::Z_AXIS));
+	
+	osgDB::writeNodeFile(*scale,DestName);
+
+	return scale.release();
+}
+
+
+bool City::constructName( std::string& OrignName,std::string& DestName, int flag, std::vector<int>& vec,int k)
+{
+	std::stringstream sstream;
+	
+	std::string name1;
+	std::string name2;
+	int index;
+	if( flag == 1)
+	{
+		index = RAND(1,146);
+		name1 = "s1/";
+		name2 = "ss1/";
+	}
+		
+	if( flag == 2)
+	{
+		index = RAND(146,156);
+		name1 = "s2/";
+		name2 = "ss2/";
+
+	}
+	if( flag == 3)
+	{
+		index = RAND(156,162);
+		name1 = "s3/";
+		name2 = "ss3/";
+
+	}
+	if( flag == 4)
+	{
+		index = RAND(162,181);
+		name1 = "s4/";
+		name2 = "ss4/";
+	}	
+
+
+	std::vector<int>::iterator iter;
+	iter = find( vec.begin(),vec.end(),index);
+	if( iter == vec.end())
+		vec.push_back(index);
+	else
+		return false;
+
+	OrignName += name1;
+	sstream << index;
+	OrignName += sstream.str();
+	OrignName += ".obj";
+
+	DestName += name2;
+	DestName += sstream.str();
+	DestName += "-";
+	sstream.str("");
+	sstream << k;
+	DestName += sstream.str();
+	DestName += ".ive";
+	
+	return true;
+
+}
+
+

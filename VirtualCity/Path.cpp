@@ -163,7 +163,7 @@ osg::ref_ptr<osg::Geode> CPath::outputScene()
 		osg::ref_ptr<osg::Geometry> road = new osg::Geometry;
 		road->setVertexArray(vertices.get());
 		osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
-		colors->push_back(osg::Vec4(0.0,0.7,0.0,1.0));
+		colors->push_back(osg::Vec4(1.0,0.0,0.0,1.0));
 		road->setColorArray(colors.get());
 		road->setColorBinding(osg::Geometry::BIND_OVERALL);
 		road->addPrimitiveSet(new osg::DrawArrays(osg::DrawArrays::LINES,0,vertices->size()));

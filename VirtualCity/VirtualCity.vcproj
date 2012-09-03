@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CityManipulator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HitVisitor.cpp"
 				>
 			</File>
@@ -225,15 +229,11 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CityManipulator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\HitVisitor.h"
-				>
-			</File>
-			<File
-				RelativePath=".\InfoVisitor.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MyTransform.h"
 				>
 			</File>
 			<File
@@ -253,7 +253,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\struct.h"
+				RelativePath=".\StatisticsVisitor.h"
 				>
 			</File>
 			<File

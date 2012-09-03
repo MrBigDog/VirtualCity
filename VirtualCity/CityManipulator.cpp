@@ -54,12 +54,27 @@ void CityManipulator::rotateTrackball( const float px0, const float py0,
 	osg::Vec3d axis;
 	float angle;
 
+	osg::Vec3 pos;
+
 	trackball( axis, angle, px1, py1, px0, py0 );
 
 	Quat new_rotate;
-	axis.x() = 0.0;
-	axis.y() = 0.0;
-	new_rotate.makeRotate( angle, axis );
+	
+	if( abs(px0-px1) > abs(py0-py1))
+	{
+		axis.x() = 0;
+		axis.y() = 0;
+		new_rotate.makeRotate( angle, axis );
+
+	}
+	else
+	{
+	
+		axis.z() = 0;
+		new_rotate.makeRotate( angle, axis );
+
+	}
+
 
 	_rotation = _rotation * new_rotate;
 }
@@ -74,6 +89,7 @@ void CityManipulator::panModel( const float dx, const float dy, const float dz )
 	 
 
 	_center += dv * rotation_matrix;
+	_center.z() = 0.0;
 }
 
 void CityManipulator::computeHomePosition(const osg::Camera *camera, bool useBoundingBox)
@@ -104,9 +120,11 @@ void CityManipulator::computeHomePosition(const osg::Camera *camera, bool useBou
 		
 
 		// set home position
-		setHomePosition(boundingSphere.center() + osg::Vec3d(0.0,-300,400.0f),
+		setHomePosition(boundingSphere.center() + osg::Vec3d(0.0,-300,300.0f),
 			boundingSphere.center(),
 			osg::Vec3d(0.0f,0.0f,1.0f),
 			_autoComputeHomePosition);
+
+
 	}
 }
